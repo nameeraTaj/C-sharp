@@ -1,0 +1,130 @@
+using System;
+using System.Data.SqlClient;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Booking_Ticket
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            SqlConnection sqlconnection;
+            String connectionString = @"Data Source=DESKTOP-CTIV2CE\SQLEXPRESS;Initial Catalog=Ticketmovie;Integrated Security=True";
+
+            try
+            {
+                sqlconnection = new SqlConnection(connectionString);
+                {
+                    sqlconnection.Open();
+                    for (int i = 0; i <= 6; i++)
+                    {
+
+
+                        Console.WriteLine("WELCOME TO VISION CINEMAS");
+                        Console.WriteLine("Select the options \n1.Available Tickets\n2.Book a Ticket\n3.Displaying the List of Shows\n4.Available Seats\n5.Movie Details ");
+                        int choice = int.Parse(Console.ReadLine());
+                        switch (choice)
+                        {
+                            case 1:
+                                String displayQuery = "SELECT Theatre_Capacity - User_Id as Error from Theatres,Booking";
+                                SqlCommand viewCommand = new SqlCommand(displayQuery, sqlconnection);
+                                SqlDataReader dataReader = viewCommand.ExecuteReader();
+                                while (dataReader.Read())
+                                {
+                                    Console.WriteLine(" Available_Tickets " + dataReader.GetValue(0).ToString());
+                                    if (dataReader.GetValue(0).Equals(0))
+                                    {
+                                        Console.WriteLine("ERROR:  No Tickets are available");
+                                    }
+                                }
+                                dataReader.Close();
+                                break;
+
+                            case 2:
+                                Console.WriteLine("Enter your Name");
+                                string Name = Console.ReadLine();
+                                Console.WriteLine("Enter your PhoneNumber ");
+                                string PhoneNumber = Console.ReadLine();
+                                String insertQuery = "Insert into Booking(Name,PhoneNumber) VALUES ('" + Name + "'  ,'" + PhoneNumber + "')";
+                                SqlCommand insertcommand = new SqlCommand(insertQuery, sqlconnection);
+                                insertcommand.ExecuteNonQuery();
+                                Console.WriteLine("Your ticket has been booked successfully");
+                                Console.WriteLine("THANK YOU!");
+                                break;
+
+                            case 3:
+                                String displayQuery1 = "SELECT * FROM shows";
+                                SqlCommand viewCommand1 = new SqlCommand(displayQuery1, sqlconnection);
+                                SqlDataReader dataReader1 = viewCommand1.ExecuteReader();
+                                while (dataReader1.Read())
+                                {
+                                    Console.WriteLine("show_id: " + dataReader1.GetValue(0).ToString());
+                                    Console.WriteLine("Movie_Title: " + dataReader1.GetValue(1).ToString());
+                                    Console.WriteLine("Movie_Lang: " + dataReader1.GetValue(2).ToString());
+                                    Console.WriteLine("MovieDate: " + dataReader1.GetValue(3).ToString());
+                                    Console.WriteLine("ShowTime: " + dataReader1.GetValue(4).ToString());
+
+                                }
+                                dataReader1.Close();
+                                break;
+
+                            case 4:
+                                String displayQuery2 = "SELECT Theatre_Capacity - User_Id as Error from Theatres, Booking";
+                                SqlCommand viewCommand2 = new SqlCommand(displayQuery2, sqlconnection);
+                                SqlDataReader dataReader2 = viewCommand2.ExecuteReader();
+                                while (dataReader2.Read())
+                                {
+                                    Console.WriteLine(" Available_seats " + dataReader2.GetValue(0).ToString());
+                                    if (dataReader2.GetValue(0).Equals(0))
+                                    {
+                                        Console.WriteLine("ERROR: No seats are available");
+                                    }
+                                }
+                                dataReader2.Close();
+                                break;
+                            case 5:
+                                Console.WriteLine("Enter Movie Name");
+                                string names = Console.ReadLine();
+
+                                SqlCommand cmd3 = new SqlCommand();
+                                cmd3.CommandText = "movieshows";
+                                cmd3.Connection = sqlconnection;
+                                cmd3.CommandType = System.Data.CommandType.StoredProcedure;
+                                SqlParameter param1 = new SqlParameter
+                                {
+                                    ParameterName = "@Movie_Title",
+                                    SqlDbType = System.Data.SqlDbType.VarChar,
+                                    Value = names,
+                                    Direction = System.Data.ParameterDirection.Input
+                                };
+                                cmd3.Parameters.Add(param1);
+                                SqlDataReader rd = cmd3.ExecuteReader();
+
+
+                                while (rd.Read())
+                                {
+                                    Console.WriteLine("Movie_Title: " + rd[0] + "\nMovie_Lang.: " + rd[1] + "\nMovieDate: "
+                                     + rd[2] + "\nShowTime.: " + rd[3]);
+                                }
+                                rd.Close();
+                                break;
+                            default:
+                                Console.WriteLine("INVALID CHOICE");
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+}
+    }
+}
+
+
+
